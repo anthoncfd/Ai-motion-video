@@ -342,26 +342,99 @@
     }
 
     /* Responsive Scaling */
+    /* Desktop: slightly more compact card */
+    main {
+      max-width: 520px;
+    }
+
+    .glass-card {
+      padding: 34px 28px;
+    }
+
+    /* Phones: tighter so the whole card fits closer to one screen */
     @media (max-width: 480px) {
       body {
-        padding: 10px;
+        padding: 12px;
       }
 
       main {
-        width: 96%;
+        width: 92%;
       }
 
       .glass-card {
-        padding: 32px 22px;
-        border-radius: 34px;
+        padding: 24px 18px;
+        border-radius: 30px;
+      }
+
+      .ai-badge {
+        font-size: 10.5px;
+        padding: 5px 12px;
+        margin-bottom: 14px;
+      }
+
+      .progress-section {
+        margin-bottom: 18px;
+      }
+
+      .progress-label,
+      .liquid-badge {
+        font-size: 11.5px;
+      }
+
+      .progress-track {
+        height: 8px;
       }
 
       .header-title {
-        font-size: 28px;
+        font-size: 24px;
+        margin-bottom: 6px;
+      }
+
+      .header-subtitle {
+        font-size: 13.5px;
+        margin-bottom: 20px;
+      }
+
+      .questions-list {
+        gap: 18px;
+      }
+
+      .question-block {
+        gap: 9px;
+      }
+
+      .mini-progress-info {
+        font-size: 11px;
       }
 
       .question-text {
-        font-size: 15.5px;
+        font-size: 14.5px;
+      }
+
+      .options-grid {
+        gap: 10px;
+      }
+
+      .glass-option {
+        min-height: 46px;
+        padding: 10px 14px;
+        border-radius: 18px;
+        font-size: 15px;
+      }
+
+      .opt-icon {
+        width: 15px;
+        height: 15px;
+      }
+
+      .cta-container {
+        margin-top: 22px;
+      }
+
+      .glass-btn {
+        padding: 15px;
+        border-radius: 20px;
+        font-size: 16px;
       }
     }
   </style>
