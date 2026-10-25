@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Learn AI Motion Design</title>
+  
+  <style>
+    /* Reset & Base Setup */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      position: relative;
+    }
+
+    /* Background Video Container */
+    .bg-video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bg-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      /* Desktop: keep the woman (right side of the frame) in view on narrower laptops */
+      object-position: 70% center;
+    }
+
+    /* Phones / portrait screens: same video, cropped to the slice where she stands */
+    @media (orientation: portrait) {
+      .bg-video {
+        object-position: 88% center;
+      }
+    }
+
+    .bg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Mild, even dark tint so the video sits back behind the card.
+         Raise 0.35 for darker, lower it for brighter. */
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    /* Central Container */
+    main {
+      position: relative;
+      z-index: 10;
+      width: 94%;
+      max-width: 580px;
+      margin: auto;
+    }
+
+    /* iOS Ultra-Clear Liquid Glass Card */
+    .glass-card {
+      position: relative;
+      /* Clear liquid glass: almost no blur, a light sheen, bright rim */
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 40%, rgba(255, 255, 255, 0.00) 60%, rgba(255, 255, 255, 0.06) 100%);
+      backdrop-filter: blur(1.5px) saturate(160%) brightness(1.05);
+      -webkit-backdrop-filter: blur(1.5px) saturate(160%) brightness(1.05);
+      border-radius: 40px;
+      padding: 40px 32px;
+      
+      /* Refraction Rim & Specular Edge Lighting */
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.7);
+      border-left: 1.5px solid rgba(255, 255, 255, 0.5);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      
+      box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.6),
+        inset 0 2px 2px 0 rgba(255, 255, 255, 0.8),
+        inset 0 -2px 4px 0 rgba(0, 0, 0, 0.3),
+        inset 2px 0 3px 0 rgba(255, 255, 255, 0.4);
+      
+      overflow: hidden;
+    }
+
+    /* AI Content Creation Badge */
+    .ai-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(1.5px) saturate(160%);
+      -webkit-backdrop-filter: blur(1.5px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ffffff;
+      margin-bottom: 20px;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.7);
+    }
+
+    /* Progress Indicator */
+    .progress-section {
+      margin-bottom: 28px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .progress-label {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .liquid-badge {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(1.5px) saturate(160%);
+      -webkit-backdrop-filter: blur(1.5px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8);
+      font-size: 13px;
+      padding: 5px 16px;
+      border-radius: 30px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .progress-track {
+      height: 10px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 100px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0071E3 0%, #2997FF 60%, #ffffff 100%);
+      border-radius: 100px;
+      width: 0%;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 12px rgba(41, 151, 255, 0.8);
+    }
+
+    /* Bold Header Typography */
+    .header-title {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      color: #ffffff;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      line-height: 1.15;
+    }
+
+    .header-subtitle {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+      margin-bottom: 32px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    /* Questions & Options List */
+    .questions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      text-align: left;
+    }
+
+    .question-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .mini-progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.85);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+      padding: 0 2px;
+    }
+
+    .mini-track {
+      height: 5px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .mini-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0071E3 0%, #ffffff 100%);
+      width: 0%;
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .question-text {
+      font-size: 17px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.35;
+      letter-spacing: -0.3px;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    /* Clear Glass Options */
+    .glass-option {
+      position: relative;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(1.5px) saturate(160%);
+      -webkit-backdrop-filter: blur(1.5px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.6);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+      color: #ffffff;
+      min-height: 56px;
+      padding: 14px 20px;
+      border-radius: 22px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .glass-option:active {
+      transform: scale(0.96);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .glass-option.selected {
+      background: rgba(0, 113, 227, 0.45);
+      border: 1.5px solid #2997FF;
+      border-top: 1.5px solid #ffffff;
+      color: #ffffff;
+      font-weight: 800;
+      box-shadow: 
+        0 8px 20px rgba(0, 113, 227, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    }
+
+    .opt-icon {
+      width: 18px;
+      height: 18px;
+      opacity: 0.6;
+      transition: all 0.2s ease;
+    }
+
+    .glass-option.selected .opt-icon {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+
+    /* CTA Button Container */
+    .cta-container {
+      margin-top: 36px;
+    }
+
+    .glass-btn {
+      width: 100%;
+      padding: 20px;
+      border-radius: 24px;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(1.5px) saturate(160%);
+      -webkit-backdrop-filter: blur(1.5px) saturate(160%);
+      cursor: not-allowed;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-btn.active {
+      background: #0071E3;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-top: 1.5px solid #ffffff;
+      color: #ffffff;
+      cursor: pointer;
+      box-shadow: 
+        0 15px 35px rgba(0, 113, 227, 0.5),
+        inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    }
+
+    .glass-btn.active:active {
+      transform: scale(0.97);
+    }
+
+    /* Responsive Scaling */
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      main {
+        width: 96%;
+      }
+
+      .glass-card {
+        padding: 32px 22px;
+        border-radius: 34px;
+      }
+
+      .header-title {
+        font-size: 28px;
+      }
+
+      .question-text {
+        font-size: 15.5px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Video & Dark Overlay -->
+  <div class="bg-video-container">
+    <!-- One video for all devices; CSS decides which part shows on phones -->
+    <video id="bgVideo" autoplay loop muted playsinline preload="auto" class="bg-video"
+      poster="thonlabs-hero-poster.jpg">
+      <source src="thonlabs-hero-bg.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <!-- Centered Glass Card Container -->
+  <main>
+    <div class="glass-card" id="glassCard">
+      
+      <!-- AI Content Creation Badge -->
+      <div class="ai-badge">
+        AI Content Creation
+      </div>
+
+      <!-- Top Overall Progress Section -->
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-label">Your Progress</span>
+          <span id="overallBadge" class="liquid-badge">0 / 3</span>
+        </div>
+        <div class="progress-track">
+          <div id="overallBar" class="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <h1 class="header-title">AI Motion Design</h1>
+      <p class="header-subtitle">Answer 3 quick questions to unlock high-impact AI video creation</p>
+
+      <!-- Questions List -->
+      <div class="questions-list">
+        
+        <!-- Question 1 -->
+        <div class="question-block">
+          <div class="mini-progress-info">
+            <span>Question 1</span>
+            <span id="status-0">Pending</span>
+          </div>
+          <div class="mini-track">
+            <div id="minibar-0" class="mini-fill"></div>
+          </div>
+          <p class="question-text">Would you like to master AI Motion Design for content creation?</p>
+          <div class="options-grid">
+            <button onclick="choose(0, 0, this)" class="glass-option">
+              <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Yes
+            </button>
+            <button onclick="choose(0, 1, this)" class="glass-option">
+              <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> No
+            </button>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="question-block">
+          <div class="mini-progress-info">
+            <span>Question 2</span>
+            <span id="status-1">Pending</span>
+          </div>
+          <div class="mini-track">
+            <div id="minibar-1" class="mini-fill"></div>
+          </div>
+          <p class="question-text">Are you ready to create viral AI video animations & keyframes?</p>
+          <div class="options-grid">
+            <button onclick="choose(1, 0, this)" class="glass-option">
+              <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Yes
+            </button>
+            <button onclick="choose(1, 1, this)" class="glass-option">
+              <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> No
+            </button>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="question-block">
+          <div class="mini-progress-info">
+            <span>Question 3</span>
+            <span id="status-2">Pending</span>
+          </div>
+          <div class="mini-track">
+            <div id="minibar-2" class="mini-fill"></div>
+          </div>
+          <p class="question-text">Can you commit to learning AI motion tools step-by-step?</p>
+          <div class="options-grid">
+            <button onclick="choose(2, 0, this)" class="glass-option">
+              <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Yes
+            </button>
+            <button onclick="choose(2, 1, this)" class="glass-option">
+              <svg class="opt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> No
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CTA Button -->
+      <div class="cta-container">
+        <button id="joinBtn" disabled class="glass-btn">
+          Join the community
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    /* WhatsApp Configuration */
+    const WHATSAPP_NUMBER = "2348061780610";
+    const WHATSAPP_MESSAGE = encodeURIComponent("Hi! I answered all 3 questions on your page and I'd like to join the AI motion design community.");
+
+    /* Interactive Answer Selection */
+    let answers = [null, null, null];
+
+    function choose(qIndex, val, el) {
+      answers[qIndex] = val;
+      
+      const siblings = el.parentElement.querySelectorAll('.glass-option');
+      siblings.forEach(btn => btn.classList.remove('selected'));
+      el.classList.add('selected');
+
+      document.getElementById(`status-${qIndex}`).innerText = 'Completed';
+      document.getElementById(`minibar-${qIndex}`).style.width = '100%';
+
+      updateOverallProgress();
+    }
+
+    function updateOverallProgress() {
+      const count = answers.filter(a => a !== null).length;
+      const pct = (count / 3) * 100;
+
+      document.getElementById('overallBar').style.width = `${pct}%`;
+      document.getElementById('overallBadge').innerText = `${count} / 3`;
+
+      const joinBtn = document.getElementById('joinBtn');
+      if (count === 3) {
+        joinBtn.disabled = false;
+        joinBtn.classList.add('active');
+        joinBtn.onclick = () => {
+          window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
+        };
+      } else {
+        joinBtn.disabled = true;
+        joinBtn.classList.remove('active');
+        joinBtn.onclick = null;
+      }
+    }
+  </script>
+</body>
+</html>
