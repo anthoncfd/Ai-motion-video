@@ -552,8 +552,8 @@
 
   <script>
     /* WhatsApp Configuration */
-    const WHATSAPP_NUMBER = "2348061780610";
-    const WHATSAPP_MESSAGE = encodeURIComponent("Hi! I answered all 3 questions on your page and I'd like to join the AI motion design community.");
+    /* "Join the community" opens this WhatsApp group invite */
+    const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/H5f9CJ5F9omH3WEPdYmYRc?s=cl&p=a&mlu=4&ilr=4";
 
     /* Interactive Answer Selection */
     let answers = [null, null, null];
@@ -583,7 +583,7 @@
         joinBtn.disabled = false;
         joinBtn.classList.add('active');
         joinBtn.onclick = () => {
-          window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
+          window.location.href = WHATSAPP_GROUP_LINK;
         };
       } else {
         joinBtn.disabled = true;
